@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Cybersecurity Tools{% endblock %}
+
+{% block content %}
+<h1>{{ "Cybersecurity Tools" | upper }}</h1>
+<p class="lead">Some cybersecurity tools that I am interested in.</p>
+<div class="alert alert-info">
+    These tools are for learning and authorized security testing.
+</div>
+<div class="row g-3">
+    {% for tool in tools %}
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ tool.name }}</h5>
+                    <p class="card-text">{{ tool.purpose }}</p>
+                    <p>Category: {{ tool.category | title }}</p>
+
+                    {% if tool.beginner_friendly %}
+                        <span class="badge text-bg-success">Beginner Friendly</span>
+                    {% else %}
+                        <span class="badge text-bg-secondary">Advanced</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<h2 class="mt-4">Categories</h2>
+
+<ul class="list-group">
+    <li class="list-group-item">Network Security</li>
+    <li class="list-group-item">Web Security</li>
+    <li class="list-group-item">Security Testing</li>
+    <li class="list-group-item">Digital Forensics</li>
+</ul>
+<a class="btn btn-primary mt-3" href="{{ url_for('index') }}">Back to Home</a>
+{% endblock %}
