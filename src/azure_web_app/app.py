@@ -1,6 +1,12 @@
 from flask import Flask, abort, render_template
 from datetime import datetime
 
+from dotenv import find_dotenv, load_dotenv
+
+from azure_web_app import auth, db
+from azure_web_app._constants import SECRET_ENV_FILE
+
+
 FAVORITES = [
     {"id": 1, "title": "Network Security", "why": "I like learning how networks can be protected."},
     {"id": 2, "title": "Ethical Hacking", "why": "I like learning how to find and fix security weaknesses."},
@@ -42,7 +48,10 @@ CYBER_TOOLS = [
 ]
 
 def create_app():
+    load_dotenv(find_dotenv(SECRET_ENV_FILE))
     app = Flask(__name__)
+    db.setup_for_app(app)
+    auth.setup_auth(app)
     setup_routes(app)
     return app
 
