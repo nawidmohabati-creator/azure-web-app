@@ -143,10 +143,12 @@ class Login(Resource):
         # Bonus: Update the last login time
         db.update_last_login(username)
 
-        return {
-            "message": f"Welcome back, {login_info.display_name}!",
-            "last_login": login_info.last_login
-        }, 200
+        if login_info.last_login is None:
+            message = f"Welcome, {login_info.display_name}! This is your first login."
+        else:
+            message = f"Welcome back, {login_info.display_name}! Your last login was {login_info.last_login}."
+
+        return {"message": message}, 200
 
 
 def setup_auth(app: Flask) -> None:
