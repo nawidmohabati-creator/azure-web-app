@@ -169,8 +169,22 @@ async function submitLoginForm(event) {
 	alert(reply.result.message);
 
 	if (reply.response.ok) {
-		hideModal("loginModal");
+		window.location.reload();
 	}
+}
+
+
+// Runs when the logout button is clicked.
+async function logout() {
+    const reply = await postJson("/logout", {});
+    if (reply === null || !reply.response.ok) {
+        alert("Logout failed. Please try again.");
+        return;
+    }
+
+    // Go back to the home page. This loads a fresh page, so the navbar is
+    // rendered again without the session cookie.
+    window.location.href = "/";
 }
 
 
@@ -206,6 +220,8 @@ function attachEventListeners() {
 	// TODO: Attach submitLoginForm to the login form's "submit" event.
 
 	document.getElementById("loginForm")?.addEventListener("submit", submitLoginForm);
+
+	document.getElementById("logoutButton")?.addEventListener("click", logout);
 
 	for (const input of document.querySelectorAll("input")) {
 		input.addEventListener("input", clearValidation);
