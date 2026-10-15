@@ -3,8 +3,9 @@ from datetime import datetime
 
 from dotenv import find_dotenv, load_dotenv
 
-from azure_web_app import auth, db
+from azure_web_app import auth, db, sessions
 from azure_web_app._constants import SECRET_ENV_FILE
+from azure_web_app.sessions import login_required
 
 
 FAVORITES = [
@@ -51,6 +52,7 @@ def create_app():
     load_dotenv(find_dotenv(SECRET_ENV_FILE))
     app = Flask(__name__)
     db.setup_for_app(app)
+    sessions.setup_sessions(app)
     auth.setup_auth(app)
     setup_routes(app)
     return app
@@ -82,10 +84,17 @@ def cyber_tools():
         tools=CYBER_TOOLS
     )
 
+@login_required
+def account():
+    return render_template("account.html")
+
+
 def setup_routes(app):
     app.route("/")(index)
     app.route("/favorites/<int:favorite_id>")(favorite_detail)
     app.route("/cyber-tools")(cyber_tools)
+    app.route("/account")(account)
+
 
 def run_app(debug: bool = True) -> None:
     app = create_app()

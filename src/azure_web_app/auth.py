@@ -8,7 +8,10 @@ Notice that there's no SQL in this file. Endpoints decide what should happen;
 the Database class in db.py does the talking to the database.
 """
 
-from flask import Flask, request
+from email.mime import message
+from urllib import response
+
+from flask import Flask, make_response, request
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_restful import Api, Resource
 
@@ -17,9 +20,11 @@ from ._constants import (
     MAX_USERNAME_LENGTH,
     MIN_PASSWORD_LENGTH,
     PASSWORD_PATTERN,
+    SESSION_COOKIE_NAME,
     USERNAME_PATTERN,
 )
 from .db import get_db
+from azure_web_app.sessions import clear_session_cookie, set_session_cookie, verify_session_cookie
 
 
 def get_json_body() -> dict:
@@ -148,7 +153,25 @@ class Login(Resource):
         else:
             message = f"Welcome back, {login_info.display_name}! Your last login was {login_info.last_login}."
 
-        return {"message": message}, 200
+        session_id = db.create_session(login_info.userid)
+        response = make_response({"message": message, "displayName": login_info.display_name}, 200)
+        set_session_cookie(response, session_id)
+        return response
+
+
+class Logout(Resource):
+    def post(self):
+        # The browser sends our cookies automatically with every request,
+        # so the JavaScript doesn't have to do anything special.
+        session_id = verify_session_cookie(request.cookies.get(SESSION_COOKIE_NAME))
+        if session_id is not None:
+            get_db().delete_session(session_id)
+
+        # Clear the cookie even if the session was already gone, so the browser
+        # stops sending a cookie that doesn't work anymore.
+        response = make_response({"message": "Logged out"}, 200)
+        clear_session_cookie(response)
+        return response
 
 
 def setup_auth(app: Flask) -> None:
@@ -159,3 +182,4 @@ def setup_auth(app: Flask) -> None:
     api.add_resource(Register, "/register")
     # TODO: Once you implement Login
     api.add_resource(Login, "/login")
+    api.add_resource(Logout, "/logout")
