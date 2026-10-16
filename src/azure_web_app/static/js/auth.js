@@ -169,7 +169,7 @@ async function submitLoginForm(event) {
 	alert(reply.result.message);
 
 	if (reply.response.ok) {
-		window.location.reload();
+		window.location.href = "/account";
 	}
 }
 
@@ -186,7 +186,16 @@ async function logout() {
     // rendered again without the session cookie.
     window.location.href = "/";
 }
+async function logoutEverywhere() {
+    const reply = await postJson("/logout-everywhere", {});
 
+    if (reply === null || !reply.response.ok) {
+        alert("Logout everywhere failed. Please try again.");
+        return;
+    }
+
+    window.location.href = "/";
+}
 
 // Remove the green/red validation styling from an input once the user starts
 // typing in it again.
@@ -222,6 +231,8 @@ function attachEventListeners() {
 	document.getElementById("loginForm")?.addEventListener("submit", submitLoginForm);
 
 	document.getElementById("logoutButton")?.addEventListener("click", logout);
+
+	document.getElementById("logoutEverywhereButton")?.addEventListener("click", logoutEverywhere);
 
 	for (const input of document.querySelectorAll("input")) {
 		input.addEventListener("input", clearValidation);

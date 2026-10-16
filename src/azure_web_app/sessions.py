@@ -13,6 +13,7 @@ import functools
 import hashlib
 import hmac
 import os
+from datetime import datetime, timezone
 
 from flask import Flask, Response, g, redirect, request, url_for
 
@@ -22,12 +23,6 @@ from azure_web_app.db import get_db
 
 def get_app_secret() -> bytes:
     """Read the app secret from the environment, the same way db.py reads the connection string."""
-    # ======================= GUIDE HELPER: DELETE BEFORE YOU SUBMIT =======================
-    # This check only exists to give you a clearer error message while you work
-    # through the guide. Delete everything between the two GUIDE HELPER lines.
-    if not os.environ.get(APP_SECRET_VARIABLE):
-        raise RuntimeError(f"{APP_SECRET_VARIABLE} is not set. Add it to your .secret.env file and to Azure.")
-    # ===================================== END GUIDE HELPER =====================================
 
     return os.environ[APP_SECRET_VARIABLE].encode()
 
@@ -104,7 +99,18 @@ def load_current_user() -> None:
 
     # This is None if the session isn't in the table anymore (for example,
     # because the user logged out somewhere else).
-    g.current_user = get_db().get_session_user(session_id)
+    db = get_db()
+    session_user = db.get_session_user(session_id)
+
+    if session_user is None:
+        return
+
+    if session_user.expiry < datetime.now(timezone.utc).replace(tzinfo=None):
+        db.delete_session(session_id)
+        g.clear_session_cookie = True
+        return
+
+    g.current_user = session_user
 
 
 def inject_current_user() -> dict:
@@ -131,3 +137,9 @@ def setup_sessions(app: Flask) -> None:
     """Hook sessions into the app. Call this from create_app()."""
     app.before_request(load_current_user)
     app.context_processor(inject_current_user)
+
+    @app.after_request
+    def clear_expired_cookie(response):
+        if getattr(g, "clear_session_cookie", False):
+            clear_session_cookie(response)
+        return response
