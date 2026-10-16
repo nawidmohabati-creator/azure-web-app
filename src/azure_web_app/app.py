@@ -88,12 +88,17 @@ def cyber_tools():
 def account():
     return render_template("account.html")
 
+@login_required
+def dashboard():
+    return render_template("dashboard.html")
+
 
 def setup_routes(app):
     app.route("/")(index)
     app.route("/favorites/<int:favorite_id>")(favorite_detail)
     app.route("/cyber-tools")(cyber_tools)
     app.route("/account")(account)
+    app.route("/dashboard")(dashboard)
 
 
 def run_app(debug: bool = True) -> None:

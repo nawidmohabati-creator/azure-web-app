@@ -11,7 +11,7 @@ the Database class in db.py does the talking to the database.
 from email.mime import message
 from urllib import response
 
-from flask import Flask, make_response, request
+from flask import Flask, g, make_response, request
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_restful import Api, Resource
 
@@ -173,6 +173,16 @@ class Logout(Resource):
         clear_session_cookie(response)
         return response
 
+class LogoutEverywhere(Resource):
+    def post(self):
+        if g.current_user is None:
+            return {"message": "Not logged in"}, 401
+
+        get_db().delete_all_sessions(g.current_user.userid)
+
+        response = make_response({"message": "Logged out everywhere"}, 200)
+        clear_session_cookie(response)
+        return response
 
 def setup_auth(app: Flask) -> None:
     """Register the authentication endpoints with the app. Should be called when first creating the flask app"""
@@ -183,3 +193,4 @@ def setup_auth(app: Flask) -> None:
     # TODO: Once you implement Login
     api.add_resource(Login, "/login")
     api.add_resource(Logout, "/logout")
+    api.add_resource(LogoutEverywhere, "/logout-everywhere")
