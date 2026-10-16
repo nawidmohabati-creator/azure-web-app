@@ -13,6 +13,8 @@ FAVORITES = [
     {"id": 2, "title": "Ethical Hacking", "why": "I like learning how to find and fix security weaknesses."},
     {"id": 3, "title": "Digital Forensics", "why": "I like learning how digital evidence can be investigated."},
     {"id": 4, "title": "Cyber Defense", "why": "I like learning how to protect systems from cyber attacks."},
+    {"id": 5, "title": "Kali Linux", "why": "I like using Kali Linux to learn cybersecurity tools."},
+    {"id": 6, "title": "Parrot OS", "why": "I like using Parrot OS to practice cybersecurity and digital forensics."},
 ]
 
 CYBER_TOOLS = [
@@ -45,6 +47,18 @@ CYBER_TOOLS = [
         "purpose": "Investigate digital evidence",
         "category": "Digital Forensics",
         "beginner_friendly": True,
+    },
+    {
+        "name": "Kali Linux",
+        "purpose": "Practice cybersecurity and penetration testing",
+        "category": "Security Testing",
+        "beginner_friendly": False,
+    },
+    {
+        "name": "Parrot OS",
+        "purpose": "Practice cybersecurity and digital forensics",
+        "category": "Security Testing",
+        "beginner_friendly": False,
     },
 ]
 
